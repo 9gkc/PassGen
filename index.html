@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Password Generator</title>
+    <link rel="stylesheet" href="main.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"
+      rel="stylesheet" />
+  </head>
+  <body>
+    <h1>Password Generator With Options</h1>
+    <div class="container">
+      <div class="options">
+        <label>
+          Password Length
+          <input class="pass-length" type="text" id="length" value="10" placeholder="Password Length {1, 32}" />
+        </label>
+        <label for="include-numbers">
+          Numbers
+          <input type="checkbox" id="include-numbers" checked />
+        </label>
+        <label for="include-special">
+          Special Chars
+          <input type="checkbox" id="include-special" checked />
+        </label>
+      </div>
+      <button class="generate" id="generate">Generate Password</button>
+      <div id="password" class="result">Password Will Appear Here</div>
+      <h3>Latest 10 Generated Passwords</h3>
+      <div id="saved-passwords" class="saved-passwords">Passwords Will Show Here</div>
+    </div>
+    <script src="main.js"></script>
+  </body>
+</html>

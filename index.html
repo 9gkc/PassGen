@@ -12,27 +12,37 @@
       rel="stylesheet" />
   </head>
   <body>
-    <h1>Password Generator With Options</h1>
-    <div class="container">
-      <div class="options">
-        <label>
-          Password Length
-          <input class="pass-length" type="text" id="length" value="10" placeholder="Password Length {1, 32}" />
-        </label>
+    <main class="container">
+      <h1>Password Generator</h1>
+      <p class="status" role="status" aria-live="polite">Generate a password locally in your browser.</p>
+      <section class="options" aria-labelledby="options-title">
+        <h2 id="options-title">Options</h2>
+        <label for="length">Password length</label>
+        <input class="pass-length" type="number" id="length" value="16" min="8" max="64" step="1" inputmode="numeric" />
         <label for="include-numbers">
-          Numbers
           <input type="checkbox" id="include-numbers" checked />
+          Include numbers
         </label>
         <label for="include-special">
-          Special Chars
           <input type="checkbox" id="include-special" checked />
+          Include special characters
         </label>
+        <label for="save-history">
+          <input type="checkbox" id="save-history" />
+          Save generated passwords in this browser (not recommended)
+        </label>
+      </section>
+      <div class="actions">
+        <button class="generate" id="generate" type="button">Generate password</button>
+        <button class="copy" id="copy-password" type="button" disabled>Copy password</button>
       </div>
-      <button class="generate" id="generate">Generate Password</button>
-      <div id="password" class="result">Password Will Appear Here</div>
-      <h3>Latest 10 Generated Passwords</h3>
-      <div id="saved-passwords" class="saved-passwords">Passwords Will Show Here</div>
-    </div>
+      <output id="password" class="result" aria-label="Generated password">Password will appear here</output>
+      <section class="history" aria-labelledby="history-title">
+        <h2 id="history-title">Local history</h2>
+        <p class="privacy-note">History is off by default. Generated passwords are not sent over the network.</p>
+        <div id="saved-passwords" class="saved-passwords">History is disabled by default for your safety.</div>
+      </section>
+    </main>
     <script src="main.js"></script>
   </body>
 </html>

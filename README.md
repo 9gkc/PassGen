@@ -14,27 +14,28 @@
 
 ## Overview ✨
 
-This is a robust and user-friendly **Password Generator with Options** built using vanilla HTML, CSS, and JavaScript. It allows users to create strong, secure passwords tailored to their specific needs by adjusting length and including/excluding numbers and special characters. The application also keeps a history of the last 10 generated passwords, stored securely in local storage. 🛡️
+This is a browser-based **Password Generator with Options** built using vanilla HTML, CSS, and JavaScript. It creates passwords locally with the Web Crypto API, supports configurable character groups, and keeps password history disabled by default to reduce exposure of sensitive values.
 
 ## Features 🌟
 
-*   **Customizable Length**: Generate passwords from 1 to 32 characters long.
+*   **Customizable Length**: Generate passwords from 8 to 64 characters long.
+*   **Secure Randomness**: Uses `crypto.getRandomValues()` rather than `Math.random()`.
 *   **Include Numbers**: Option to include numeric characters (0-9).
-*   **Include Special Characters**: Option to include special symbols (!@#$%^&*()).
-*   **Real-time Generation**: Instantly generate passwords with a click of a button.
-*   **Password History**: Keeps track of the last 10 generated passwords for easy reference.
-*   **Local Storage**: All generated passwords are saved securely in your browser's local storage.
+*   **Include Special Characters**: Option to include special symbols.
+*   **One-click Copy**: Copy a generated password through the Clipboard API when permitted.
+*   **Privacy-first History**: Local history is opt-in, limited to 10 values, and cleared when disabled.
 *   **Responsive Design**: A clean and intuitive user interface that works well on various screen sizes.
 
 ## How to Run Locally 💻
 
 Follow these simple steps to get the Password Generator up and running on your local machine:
 
-1.  **Clone the Repository** (Once it's on GitHub):
+1.  **Clone the Repository**:
     ```bash
-    git clone <repository-url>
-    cd password-generator
+    git clone https://github.com/9gkc/PassGen.git
+    cd PassGen
     ```
-2.  **Open `index.html`**: Simply open the `index.html` file in your preferred web browser. No server setup or build process is required!
+2.  **Serve `index.html` over HTTPS or localhost** so the Web Crypto and Clipboard APIs can work reliably. No build process is required.
+3.  **Keep history disabled** unless you explicitly accept the risk of storing generated passwords in this browser. Never reuse a generated password across important accounts.
 
-Generate strong passwords and stay secure! 🔒
+Generate strong passwords locally and handle them as sensitive data.

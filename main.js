@@ -1,99 +1,159 @@
-const lengthInput = document.getElementById("length");
-const generateBtn = document.getElementById("generate");
-const passwordDiv = document.getElementById("password");
+const lengthInput = document.querySelector("#length");
+const generateButton = document.querySelector("#generate");
+const copyButton = document.querySelector("#copy-password");
+const passwordElement = document.querySelector("#password");
+const numbersCheckbox = document.querySelector("#include-numbers");
+const specialCheckbox = document.querySelector("#include-special");
+const historyCheckbox = document.querySelector("#save-history");
+const savedPasswordsElement = document.querySelector("#saved-passwords");
+const statusElement = document.querySelector(".status");
+const storageKey = "passgen.history.v1";
+const maxHistory = 10;
 
-// Prevent Non-Numeric Characters and Enforce Character Limit
-lengthInput.addEventListener("input", function () {
-  let value = lengthInput.value;
+function setStatus(message, tone = "info") {
+  if (!statusElement) return;
+  statusElement.textContent = message;
+  statusElement.dataset.tone = tone;
+}
 
-  // Remove Non Digits Characters
-  value = value.replace(/\D/g, "");
+function secureRandomInt(maximum) {
+  if (!Number.isInteger(maximum) || maximum <= 0) throw new Error("Invalid random range.");
+  const cryptoSource = globalThis.crypto;
+  if (!cryptoSource?.getRandomValues) throw new Error("Secure randomness is unavailable.");
+  const limit = Math.floor(0x1_0000_0000 / maximum) * maximum;
+  const buffer = new Uint32Array(1);
+  do {
+    cryptoSource.getRandomValues(buffer);
+  } while (buffer[0] >= limit);
+  return buffer[0] % maximum;
+}
 
-  // Force Range -> {1, 32}
-  if (value !== "") value = Math.max(1, Math.min(32, parseInt(value)));
+function secureChoice(characters) {
+  return characters[secureRandomInt(characters.length)];
+}
 
-  lengthInput.value = value;
-});
-
-// Set A Default Value If The Field Is Empty
-lengthInput.addEventListener("blur", function () {
-  if (lengthInput.value === "") lengthInput.value = 10;
-});
-
-// Math.min(32, 1) 1
-// Math.min(32, 15) 15
-// Math.min(32, 159) 32
-
-// Generate Password Function
+function shuffle(characters) {
+  for (let index = characters.length - 1; index > 0; index -= 1) {
+    const swapIndex = secureRandomInt(index + 1);
+    [characters[index], characters[swapIndex]] = [characters[swapIndex], characters[index]];
+  }
+  return characters;
+}
 
 function generatePassword(length, includeNumbers, includeSpecial) {
   const lowercase = "abcdefghijklmnopqrstuvwxyz";
   const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const numbers = "0123456789";
   const special = "!@#$%^&*()_+-=[]{}|;:',.<>?";
+  const groups = [lowercase, uppercase];
+  if (includeNumbers) groups.push(numbers);
+  if (includeSpecial) groups.push(special);
 
-  let characterPool = lowercase + uppercase;
-  if (includeNumbers) characterPool += numbers;
-  if (includeSpecial) characterPool += special;
+  const characters = groups.map((group) => secureChoice(group));
+  const pool = groups.join("");
+  while (characters.length < length) characters.push(secureChoice(pool));
+  return shuffle(characters).join("");
+}
 
-  let password = "";
-  for (let i = 0; i < length; i++) {
-    const randomIndex = Math.floor(Math.random() * characterPool.length);
-    password += characterPool[randomIndex];
+function readHistory() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    return Array.isArray(stored) && stored.every((value) => typeof value === "string")
+      ? stored.slice(0, maxHistory)
+      : [];
+  } catch (error) {
+    console.error("Unable to read password history", error);
+    return [];
+  }
+}
+
+function renderHistory() {
+  if (!savedPasswordsElement) return;
+  savedPasswordsElement.replaceChildren();
+  if (!historyCheckbox?.checked) {
+    savedPasswordsElement.textContent = "History is disabled by default for your safety.";
+    return;
   }
 
-  return password;
+  const history = readHistory();
+  if (history.length === 0) {
+    savedPasswordsElement.textContent = "No passwords saved locally.";
+    return;
+  }
+
+  history.forEach((password, index) => {
+    const row = document.createElement("div");
+    row.className = "saved-password";
+    const label = document.createElement("span");
+    label.textContent = `${index + 1}.`;
+    const value = document.createElement("code");
+    value.textContent = password;
+    row.append(label, value);
+    savedPasswordsElement.appendChild(row);
+  });
 }
 
-// console.log(generatePassword(20, true, true));
-
-// Click On Generate Button
-generateBtn.addEventListener("click", function () {
-  // Get Password Length
-  let length = parseInt(lengthInput.value);
-
-  // console.log(length);
-  const includeNumbers = document.getElementById("include-numbers").checked;
-  const includeSpecial = document.getElementById("include-special").checked;
-
-  // console.log(includeNumbers);
-  // console.log(includeSpecial);
-
-  // Get Random Password From Generate Password Function
-  const password = generatePassword(length, includeNumbers, includeSpecial);
-
-  passwordDiv.textContent = password;
-
-  // Save Password To Local Storage
-  savePassword(password);
-  displaySavedPasswords();
-});
-
-// Save The Passwords To Local Storage
 function savePassword(password) {
-  const savedPasswords = JSON.parse(localStorage.getItem("passwords")) || [];
-  // console.log(savedPasswords);
-  savedPasswords.unshift(password); // Add Password At The Start Of Array
-  if (savedPasswords.length > 10) savedPasswords.pop(); // Remove The Last Element
-  localStorage.setItem("passwords", JSON.stringify(savedPasswords));
+  if (!historyCheckbox?.checked) return;
+  try {
+    const history = [password, ...readHistory()].slice(0, maxHistory);
+    localStorage.setItem(storageKey, JSON.stringify(history));
+  } catch (error) {
+    setStatus("The password was generated, but local history could not be saved.", "error");
+    console.error("Unable to save password history", error);
+  }
 }
 
-// Display Saved Passwords
-function displaySavedPasswords() {
-  const savedPasswords = JSON.parse(localStorage.getItem("passwords")) || [];
-  const listOfPasswords = savedPasswords.map((p, i) => `<div><span>${i + 1}</span> ${escapeHTML(p)}</div>`).join("");
-  document.getElementById("saved-passwords").innerHTML = listOfPasswords || "Passwords Will Show Here";
+async function copyPassword() {
+  const password = passwordElement?.textContent || "";
+  if (!password || password === "Password will appear here") return;
+  try {
+    await navigator.clipboard.writeText(password);
+    setStatus("Password copied to the clipboard.", "success");
+  } catch (error) {
+    setStatus("Copying was blocked. Select the password and copy it manually.", "error");
+    console.error("Unable to copy password", error);
+  }
 }
 
-// Escape HTML
-function escapeHTML(str) {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+function generate() {
+  const length = Number.parseInt(lengthInput?.value || "", 10);
+  if (!Number.isInteger(length) || length < 8 || length > 64) {
+    setStatus("Choose a password length between 8 and 64 characters.", "error");
+    lengthInput?.focus();
+    return;
+  }
+
+  try {
+    const password = generatePassword(length, Boolean(numbersCheckbox?.checked), Boolean(specialCheckbox?.checked));
+    passwordElement.textContent = password;
+    copyButton.disabled = false;
+    savePassword(password);
+    renderHistory();
+    setStatus("A strong password was generated. Copy it and do not share it.", "success");
+  } catch (error) {
+    setStatus("Secure password generation is unavailable in this browser.", "error");
+    console.error("Unable to generate password", error);
+  }
 }
 
-// Display Passwords On Page Load
-document.addEventListener("DOMContentLoaded", displaySavedPasswords);
+lengthInput?.addEventListener("input", () => {
+  const numericValue = lengthInput.value.replace(/\D/g, "");
+  lengthInput.value = numericValue ? String(Math.min(64, Math.max(8, Number(numericValue)))) : "";
+});
+lengthInput?.addEventListener("blur", () => {
+  if (!lengthInput.value) lengthInput.value = "16";
+});
+generateButton?.addEventListener("click", generate);
+copyButton?.addEventListener("click", copyPassword);
+historyCheckbox?.addEventListener("change", () => {
+  if (!historyCheckbox.checked) {
+    try {
+      localStorage.removeItem(storageKey);
+    } catch (error) {
+      console.error("Unable to clear password history", error);
+    }
+  }
+  renderHistory();
+});
+renderHistory();

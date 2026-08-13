@@ -2,6 +2,12 @@
 
 > **Live demo:** [Open PassGen in your browser](https://9gkc.github.io/PassGen/)
 
+## Interface preview
+
+![PassGen live interface showing the length and character-set controls, a generated demonstration value, and local-history protections](docs/images/passgen-live-preview.webp)
+
+**[Open PassGen](https://9gkc.github.io/PassGen/)**. The interface runs locally in the browser and history is disabled by default. Treat every generated value as sensitive: do not share it, do not reuse it, and save it only in the intended account or a trusted password manager.
+
 <div align="center">
   <img src="https://img.shields.io/github/last-commit/9gkc/PassGen?style=for-the-badge&label=Last%20Update&color=58A6FF" alt="Last Update">
   <img src="https://img.shields.io/github/stars/9gkc/PassGen?style=for-the-badge&color=58A6FF" alt="GitHub Stars">

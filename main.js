@@ -40,6 +40,17 @@ function shuffle(characters) {
   return characters;
 }
 
+function estimateStrength(length, includeNumbers, includeSpecial) {
+  let poolSize = 52;
+  if (includeNumbers) poolSize += 10;
+  if (includeSpecial) poolSize += 20;
+  const entropy = length * Math.log2(poolSize);
+  if (entropy < 40) return "Weak";
+  if (entropy < 60) return "Moderate";
+  if (entropy < 80) return "Strong";
+  return "Very strong";
+}
+
 function generatePassword(length, includeNumbers, includeSpecial) {
   const lowercase = "abcdefghijklmnopqrstuvwxyz";
   const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -125,12 +136,15 @@ function generate() {
   }
 
   try {
-    const password = generatePassword(length, Boolean(numbersCheckbox?.checked), Boolean(specialCheckbox?.checked));
+    const includeNumbers = Boolean(numbersCheckbox?.checked);
+    const includeSpecial = Boolean(specialCheckbox?.checked);
+    const password = generatePassword(length, includeNumbers, includeSpecial);
+    const strength = estimateStrength(length, includeNumbers, includeSpecial);
     passwordElement.textContent = password;
     copyButton.disabled = false;
     savePassword(password);
     renderHistory();
-    setStatus("A strong password was generated. Copy it and do not share it.", "success");
+    setStatus(`Generated (${strength}). Copy it and do not share it.`, "success");
   } catch (error) {
     setStatus("Secure password generation is unavailable in this browser.", "error");
     console.error("Unable to generate password", error);
@@ -143,6 +157,12 @@ lengthInput?.addEventListener("input", () => {
 });
 lengthInput?.addEventListener("blur", () => {
   if (!lengthInput.value) lengthInput.value = "16";
+});
+lengthInput?.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    generate();
+  }
 });
 generateButton?.addEventListener("click", generate);
 copyButton?.addEventListener("click", copyPassword);

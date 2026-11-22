@@ -1,11 +1,14 @@
-# Contributing
+# Contributing to PassGen
 
-Thank you for helping improve this project. Before making a change, review the README and existing issues, then keep the scope focused and explain the user or security value of the change.
+Thank you for helping improve this password generator.
 
-## Development standards
+## Standards
 
-Use clear names, small cohesive changes, accessible interfaces, and safe DOM or data handling. Do not commit secrets, generated dependencies, build output, local configuration, or personal data. Update documentation when behavior changes.
+- Keep the tool client-side only
+- Prefer clear, focused changes
+- Never introduce external transmission of generated passwords
+- Keep all project content in English
 
-## Validation
+## Security
 
-Run the checks documented in the README and make sure the working tree is clean before opening a pull request. A pull request should describe the problem, the solution, the validation performed, and any known limitations. Screenshots or a short recording are helpful for user-interface changes.
+Follow the process in [SECURITY.md](SECURITY.md).

@@ -1,11 +1,13 @@
 # Security Policy
 
-## Supported versions
+## Supported Versions
 
-The default branch is the supported version for security fixes.
+The default branch is the supported version.
 
-## Reporting a vulnerability
+## Responsible Use
 
-Please do not disclose a suspected vulnerability in a public issue. Use GitHub's private vulnerability reporting feature from the repository Security tab when it is available. If private reporting is unavailable, contact the repository owner through the GitHub profile at https://github.com/9gkc and include reproducible steps, impact, and a safe way to follow up.
+PassGen is a client-side password generator. Generated passwords are created locally in the browser and are not transmitted or stored by the application.
 
-Please avoid including credentials, API keys, personal data, or destructive proof-of-concept payloads in a report. Security reports are reviewed in good faith and handled as quickly as practical.
+## Reporting a Vulnerability
+
+Please do not disclose a suspected vulnerability in a public issue. Contact the repository owner through the GitHub profile at https://github.com/9gkc with a clear description and safe reproduction steps.
